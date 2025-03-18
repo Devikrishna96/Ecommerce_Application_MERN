@@ -20,7 +20,16 @@ const productSchema=new mongoose.Schema({
     //seller
     seller :{
         type:mongoose.Types.ObjectId,ref:"seller"
+    },
+    quantity :{
+        type:Number,
+        required:true
+        
+    },
+    isApprove :{
+        type:Boolean,
+        default:false
     }
 },{timestamps :true})
 
-module.exports=new mongoose.model("products",productSchema)
+module.exports=new mongoose.model("Product",productSchema)

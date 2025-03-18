@@ -1,4 +1,4 @@
-const userModel = require("../Models/userModel")
+const User = require("../Models/userModel")
 const { createToken } = require("../Utilities/generateToken");
 const uploadToCloudinary = require("../Utilities/imageUpload");
 const {hashPassword,comparePassword} = require("../Utilities/passwordUtilities")
@@ -17,7 +17,7 @@ if(password !== confirmpassword)
     return res.status(400).json({error:"Passwords does not match"})
 
 }
-const userExist=await userModel.findOne({email})
+const userExist=await User.findOne({email})
 if(userExist)
 {
     return res.status(400).json({error:"User already exists"})
@@ -25,12 +25,12 @@ if(userExist)
 }
 
 const hashedPassword=await hashPassword(password)
-const newUser= new userModel({
+const newUser= new User({
     name,email,phone,password:hashedPassword
 })
 const saved= await newUser.save()
 if(saved){
-    const token=createToken(saved._id)
+    const token=createToken(saved._id,"user")
     res.cookie("token",token)
 console.log(token)
     return res.status(200).json({message:`User  ${name} Created Successfully`})
@@ -51,7 +51,7 @@ const login=async(req,res)=>{
             {
                 return res.status(400).json({error:"All fields are required "})
             }
-            const userExist=await userModel.findOne({email})
+            const userExist=await User.findOne({email})
 if(!userExist)
 {
     return res.status(400).json({error:"User does not exists"})
@@ -65,7 +65,7 @@ console.log(passwordMatch)
 if(!passwordMatch){
     return res.status(400).json({error:"Password does not match "})
 }
-const token=createToken(userExist._id)
+const token=createToken(userExist._id,"user")
 res.cookie("token",token)
 return res.status(200).json({message :"user login successfull",userExist})
         }
@@ -93,7 +93,7 @@ const logout=async(req,res)=>{
 const profileView=async(req,res)=>{
     try{
         console.log(req.user)
-        const user = await userModel.findById(req.user).select("-password");
+        const user = await User.findById(req.user).select("-password");
 
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -126,7 +126,7 @@ console.log(req.file)
             const profilePicUrl = await uploadToCloudinary(req.file.path,"profile_pics");
             updateData.profilepic = profilePicUrl;
         }
-        const updatedUser = await userModel.findByIdAndUpdate(userId, updateData, { new: true });
+        const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
         if (!updatedUser || !user.active) {
             return res.status(404).json({ error: "Your account is deactivated. You cannot update your profile." });
           }
@@ -142,7 +142,7 @@ console.log(req.file)
 const profileDeactivate= async(req,res)=>{
     try {
         const userId = req.user;
-        const deactivatedUser = await userModel.findByIdAndUpdate(userId, { active: false }, { new: true})
+        const deactivatedUser = await User.findByIdAndUpdate(userId, { active: false }, { new: true})
         if (!deactivatedUser) {
             return res.status(404).json({ error: "User not found" });
         }
@@ -161,7 +161,7 @@ const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
-    const user = await userModel.findOne({ email });
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ error: "User not found" });
     }
@@ -195,7 +195,7 @@ const resetPassword = async (req, res) => {
         return res.status(400).json({ error: "Token and new password are required" });
       }
   
-      const user = await userModel.findOne({
+      const user = await User.findOne({
         resetToken,
         resetTokenExpiry: { $gt: new Date()}, 
       });
@@ -230,7 +230,7 @@ const updateAddress = async (req, res) => {
       return res.status(400).json({ error: "All address fields are required" });
     }
 
-    const user = await userModel.findById(req.user);
+    const user = await User.findById(req.user);
     if (!user) {
       return res.status(404).json({ error: "User not found" });
     }
@@ -254,7 +254,36 @@ const checkUser=async(req,res)=>{
     return res.status(500).json({ error: "Internal Server Error" });
   }
 }
+//get all users
+const getAllUsers = async (req, res) => {
+    try {
+        const users = await User.find({}).select("-password");
+        return res.status(200).json({ data : users });
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
 
+
+
+// Delete User
+const deleteUser = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const deletedUser = await User.findByIdAndDelete(userId);
+
+        if (!deletedUser) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        return res.status(200).json({ message: "User deleted successfully" });
+
+    } catch (err) {
+        console.error(err);
+        return res.status(500).json({ error: "Internal Server Error" });
+    }
+}
 
 module.exports={
     register,
@@ -266,7 +295,9 @@ module.exports={
     forgotPassword,
     resetPassword,
     updateAddress,
-    checkUser
+    checkUser,
+    getAllUsers,
+    deleteUser
 
     
 }

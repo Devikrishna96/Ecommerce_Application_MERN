@@ -1,6 +1,13 @@
-const adminModel = require("../Models/adminModel")
+const Admin = require("../Models/adminModel")
+const Product = require("../Models/productModel")
 const { createToken } = require("../Utilities/generateToken")
 const { hashPassword, comparePassword } = require("../Utilities/passwordUtilities")
+const sendEmail = require("../Utilities/sendEmail"); 
+const crypto = require('crypto');
+const Order = require("../Models/orderModel");
+const review = require("../Models/reviewModel");
+const User = require("../Models/userModel");
+const seller = require("../Models/sellerModel");
 
 const register = async (req,res)=>{
     try{
@@ -8,13 +15,13 @@ const {email,password}=req.body
 if(!email || !password){
     return res.status(400).json({message:"All fields are required"})
 }
-const alreadyExist= await adminModel.findOne({email})
+const alreadyExist= await Admin.findOne({email})
 if(alreadyExist){
     return res.status(400).json({error:"Email already Exist"})
 
 }
 const hashedPassword= await hashPassword(password)
-const newAdmin=new adminModel({
+const newAdmin=new Admin({
     email,password:hashedPassword
 })
 const saved= await newAdmin.save()
@@ -37,7 +44,7 @@ const login=async(req,res)=>{
             {
                 return res.status(400).json({error:"All fields are required "})
             }
-            const adminExist=await adminModel.findOne({email})
+            const adminExist=await Admin.findOne({email})
 if(!adminExist)
 {
     return res.status(400).json({error:"Admin does not exists"})
@@ -50,7 +57,7 @@ if(!passwordMatch){
 }
 const token=createToken(adminExist._id,"admin")
 res.cookie("admin_token",token)
-return res.status(200).json({message :"Admin login successfull",adminExist})
+return res.status(200).json({data : adminExist,message :"Admin login successfull"})
         }
 catch(err){
     console.log(err)
@@ -74,7 +81,7 @@ const logout=async(req,res)=>{
 const profileView=async(req,res)=>{
     try{
         console.log(req.admin)
-        const admin = await adminModel.findById(req.admin).select("-password");
+        const admin = await Admin.findById(req.admin).select("-password");
 
     if (!admin) {
       return res.status(404).json({ error: "admin not found" });
@@ -82,7 +89,7 @@ const profileView=async(req,res)=>{
     if (!admin.active) {
       return res.status(403).json({ error: "Your account is deactivated." });
   }
-    return res.status(200).json({ admin });
+    return res.status(200).json({ data : admin });
     }
     catch(err){
         console.log(err)
@@ -100,7 +107,7 @@ const forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
-    const admin = await adminModel.findOne({ email });
+    const admin = await Admin.findOne({ email });
     if (!admin) {
       return res.status(400).json({ error: "admin not found" });
     }
@@ -134,7 +141,7 @@ const resetPassword = async (req, res) => {
         return res.status(400).json({ error: "Token and new password are required" });
       }
   
-      const admin = await adminModel.findOne({
+      const admin = await Admin.findOne({
         resetToken,
         resetTokenExpiry: { $gt: new Date()}, 
       });
@@ -172,101 +179,29 @@ const checkAdmin=async(req,res)=>{
 }
 
 
-const getAllUsers = async (req, res) => {
+// Admin Dashboard - Get Stats
+const getDashboardStats = async (req, res) => {
     try {
-        const users = await userModel.find({}).select("-password");
-        return res.status(200).json({ users });
+        const totalUsers = await User.countDocuments();
+        const totalSellers = await Seller.countDocuments();
+        const totalProducts = await Product.countDocuments();
+        const totalOrders = await Order.countDocuments();
+        const totalRevenue = await Order.aggregate([{ $group: { _id: null, revenue: { $sum: "$totalPrice" } } }]);
+
+        return res.status(200).json({data:
+            totalUsers,
+            totalSellers,
+            totalProducts,
+            totalOrders,
+            totalRevenue: totalRevenue[0]?.revenue || 0,
+        });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ error: "Internal Server Error" });
     }
 }
 
-// View All Sellers
-const getAllSellers = async (req, res) => {
-    try {
-        const sellers = await sellerModel.find({}).select("-password");
-        return res.status(200).json({ sellers });
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Internal Server Error" });
-    }
-}
 
-// Delete User
-const deleteUser = async (req, res) => {
-    try {
-        const { userId } = req.params;
-        const deletedUser = await userModel.findByIdAndDelete(userId);
-
-        if (!deletedUser) {
-            return res.status(404).json({ error: "User not found" });
-        }
-
-        return res.status(200).json({ message: "User deleted successfully" });
-
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Internal Server Error" });
-    }
-}
-
-// Delete Seller
-const deleteSeller = async (req, res) => {
-    try {
-        const { sellerId } = req.params;
-        const deletedSeller = await sellerModel.findByIdAndDelete(sellerId);
-
-        if (!deletedSeller) {
-            return res.status(404).json({ error: "Seller not found" });
-        }
-
-        return res.status(200).json({ message: "Seller deleted successfully" });
-
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Internal Server Error" });
-    }
-}
-
-// Approve Seller
-const approveSeller = async (req, res) => {
-    try {
-        const { sellerId } = req.params;
-        const seller = await sellerModel.findByIdAndUpdate(sellerId, { verified: true }, { new: true });
-
-        if (!seller) {
-            return res.status(404).json({ error: "Seller not found" });
-        }
-
-        return res.status(200).json({ message: "Seller approved successfully", seller });
-
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Internal Server Error" });
-    }
-}
-
-// Change User Role
-const changeUserRole = async (req, res) => {
-    try {
-        const { userId, role } = req.body;
-        if (!["user", "seller", "admin"].includes(role)) {
-            return res.status(400).json({ error: "Invalid role" });
-        }
-
-        const updatedUser = await userModel.findByIdAndUpdate(userId, { role }, { new: true });
-        if (!updatedUser) {
-            return res.status(404).json({ error: "User not found" });
-        }
-
-        return res.status(200).json({ message: `User role updated to ${role}`, user: updatedUser });
-
-    } catch (err) {
-        console.error(err);
-        return res.status(500).json({ error: "Internal Server Error" });
-    }
-}
 
 
 module.exports={
@@ -277,12 +212,9 @@ module.exports={
     forgotPassword,
     resetPassword,
     checkAdmin,
-    getAllUsers,
-    getAllSellers,
-    deleteUser,
-    deleteSeller,
-    approveSeller,
-    changeUserRole
+    getDashboardStats,
+    
+    
 }
 
 

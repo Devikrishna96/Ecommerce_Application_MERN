@@ -1,11 +1,11 @@
 const jwt=require('jsonwebtoken');
-const adminModel = require('../Models/adminModel');
+const Admin = require('../Models/adminModel');
 const authAdmin= async(req,res,next)=>{
     try {
           const {admin_token}= req.cookies;
         if(!admin_token)
         {
-            return res.status(401).json({error:"jwt not found"})
+            return res.status(401).json({error:"Unauthorized. Please login as admin."})
         }
         const verifiedToken=jwt.verify(admin_token,process.env.JWT_SECRET)
         if(!verifiedToken)
@@ -18,8 +18,7 @@ const authAdmin= async(req,res,next)=>{
                 return res.status(401).json({error:"Access Denied"})
     
             }
-            const admin = await adminModel.findById(verifiedToken.id);
-
+            const admin = await Admin.findById(verifiedToken.id);
             if (!admin || !admin.active) {
                 return res.status(403).json({ error: "Your account has been deactivated. Access denied." });
             }

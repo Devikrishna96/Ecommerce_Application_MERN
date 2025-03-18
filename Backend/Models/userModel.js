@@ -7,14 +7,17 @@ const userSchema=new mongoose.Schema({
     email :{
         type:String,
         required:true,
-        unique:true
+        unique:true,
+        trim: true,
+        lowercase: true,
+        match: [/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/, 'Please enter a valid email address']
+
     },
     phone :{
         type:String,
         required:true,
         unique: true,
-        trim: true,
-        lowercase: true,
+        match: [/^\+?[1-9]\d{1,14}$/, 'Please enter a valid phone number']
     },
     password :{
         type:String,
@@ -56,4 +59,4 @@ const userSchema=new mongoose.Schema({
     }
 },{timestamps:true})
 
-module.exports=new mongoose.model('users',userSchema)
+module.exports=new mongoose.model('User',userSchema)

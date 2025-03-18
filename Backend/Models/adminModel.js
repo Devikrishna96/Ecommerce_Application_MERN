@@ -7,11 +7,14 @@ const adminSchema=new mongoose.Schema({
         unique:true,
         trim: true,
         lowercase: true,
+        match: [/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$/, 'Please enter a valid email address']
+
     },
    
     password :{
         type:String,
-        required:true
+        required:true,
+        match: [/^\+?[1-9]\d{1,14}$/, 'Please enter a valid phone number']
     },
     
     role: {
@@ -24,10 +27,12 @@ const adminSchema=new mongoose.Schema({
         default: false // Email verification status
     },
     adminEmailToken: {
-        type: String, // Token for email verification
+        type: String,
+        index:true // Token for email verification
     },
     resetToken: {
-        type: String, // Token for password reset
+        type: String,
+        index:true // Token for password reset
     },
     resetTokenExpiry: {
         type: Date, // Expiry time for password reset token
@@ -42,4 +47,4 @@ const adminSchema=new mongoose.Schema({
     }
 },{timestamps:true})
 
-module.exports=new mongoose.model('admin',adminSchema)
+module.exports=new mongoose.model('Admin',adminSchema)

@@ -1,24 +1,17 @@
-const { register,login, logout, changeUserRole, approveSeller, deleteSeller, deleteUser, getAllSellers, getAllUsers, resetPassword, forgotPassword, profileView, checkAdmin } = require('../../Controllers/adminController')
+const { register,login, logout, resetPassword, forgotPassword, profileView, checkAdmin, getDashboardStats} = require('../../Controllers/adminController')
 const authAdmin = require('../../Middlewares/authAdmin')
 
 const adminRouter=require('express').Router()
 
-
+//admin
 adminRouter.post('/register',register)
 adminRouter.post('/login',login)
-adminRouter.get('/logout',authAdmin,logout)
-
+adminRouter.post('/logout',authAdmin,logout)
 adminRouter.get("/profile", authAdmin, profileView);
 adminRouter.post("/forgot-password", forgotPassword);
 adminRouter.post("/reset-password", resetPassword);
-
-adminRouter.get("/view-users", authAdmin, getAllUsers);
-adminRouter.get("/view-sellers", authAdmin, getAllSellers);
-adminRouter.delete("/user-delete/:userId", authAdmin, deleteUser);
-adminRouter.delete("/seller-delete/:sellerId", authAdmin, deleteSeller);
-adminRouter.patch("/seller-approve/:sellerId", authAdmin, approveSeller);
-adminRouter.patch("/user-role", authAdmin, changeUserRole);
 adminRouter.get("/checkadmin", authAdmin, checkAdmin);
-
+// Dashboard Stats
+adminRouter.get('/dashboard-stats', authAdmin, getDashboardStats);
 
 module.exports= adminRouter

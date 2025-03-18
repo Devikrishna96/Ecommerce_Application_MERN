@@ -1,11 +1,11 @@
 const jwt=require('jsonwebtoken');
-const sellerModel = require('../Models/sellerModel');
+const Seller = require('../Models/sellerModel');
 const authSeller= async(req,res,next)=>{
     try {
           const {seller_token}= req.cookies;
         if(!seller_token)
         {
-            return res.status(401).json({error:"jwt not found"})
+            return res.status(401).json({error:"Unauthorized. Please login as Seller."})
         }
         const verifiedToken=jwt.verify(seller_token,process.env.JWT_SECRET)
         if(!verifiedToken)
@@ -14,12 +14,12 @@ const authSeller= async(req,res,next)=>{
 
         }
         console.log(verifiedToken.role)
-        // if(verifiedToken.role !== "seller")
-        //     {
-        //         return res.status(401).json({error:"Access Denied"})
+        if(verifiedToken.role !== "seller")
+            {
+                return res.status(401).json({error:"Access Denied"})
     
-        //     }
-            const seller = await sellerModel.findById(verifiedToken.id);
+            }
+            const seller = await Seller.findById(verifiedToken.id);
 
             if (!seller || !seller.active) {
                 return res.status(403).json({ error: "Your account has been deactivated. Access denied." });
