@@ -13,7 +13,7 @@ const cookieParser=require('cookie-parser')
 const port = process.env.PORT;
 const DB_CONNECTION_LINK = process.env.DB_CONNECTION_LINK;
 const corsOptions={
-    origin: "http://localhost:5173",
+    origin: "https://ecommerce-application-mernfron-git-d4491e-devikrishnas-projects.vercel.app/",
     credentials: true,
   }
 
