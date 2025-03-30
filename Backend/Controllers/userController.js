@@ -66,7 +66,12 @@ if(!passwordMatch){
     return res.status(400).json({error:"Password does not match "})
 }
 const token=createToken(userExist._id,"user")
-res.cookie("token",token)
+res.cookie("token",token,
+  {
+    httpOnly: true,   // Prevents client-side JavaScript from accessing it
+    secure: true,     // Ensures cookie is only sent over HTTPS (remove in dev)
+    sameSite: "Strict" // Helps with CSRF protection
+    })
 return res.status(200).json({message :"user login successfull",userExist})
         }
 catch(err){

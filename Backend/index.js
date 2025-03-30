@@ -14,6 +14,7 @@ const port = process.env.PORT;
 const DB_CONNECTION_LINK = process.env.DB_CONNECTION_LINK;
 const corsOptions={
     origin: "http://localhost:5173",
+    credentials: true,
   }
 
 
