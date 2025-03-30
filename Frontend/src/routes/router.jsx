@@ -5,7 +5,7 @@ import { Contact } from "../pages/user/Contact";
 
 import {Home} from "../pages/user/Home";
 import  { Signup } from "../pages/user/Signup";
-import { Login } from "../pages/user/login";
+import { Login } from "../pages/user/Login";
 import { ErrorPage } from "../pages/user/Error";
 import { Wishlist } from "../pages/user/Wishlist";
 import { ProtectedRoutes } from "./ProtectedRoutes";
