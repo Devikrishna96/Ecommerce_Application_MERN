@@ -34,6 +34,6 @@ app.use(cors(corsOptions))
 app.use(express.json())
 app.use('/api',apiRouter)
 
-app.listen(port, () => {
+app.use(port, () => {
     console.log(`Example app listening on port ${port}`)
   })
