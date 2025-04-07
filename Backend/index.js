@@ -37,6 +37,6 @@ app.get('/', (req, res) => {
 app.use(express.json())
 app.use('/api',apiRouter)
 
-app.use(port, () => {
+app.listen(port, () => {
     console.log(`Example app listening on port ${port}`)
   })
