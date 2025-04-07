@@ -31,6 +31,9 @@ const corsOptions={
 app.use(cookieParser())
 
 app.use(cors(corsOptions))
+app.get('/', (req, res) => {
+  res.send('Hello world');
+});
 app.use(express.json())
 app.use('/api',apiRouter)
 

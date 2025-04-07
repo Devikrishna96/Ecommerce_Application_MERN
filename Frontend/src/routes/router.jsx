@@ -1,5 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 import Userlayout from "../layout/Userlayout";
+import Adminlayout from "../layout/Adminlayout";
+import Sellerlayout from "../layout/Sellerlayout";
+
 import { About } from "../pages/user/About";
 import { Contact } from "../pages/user/Contact";
 
@@ -75,4 +78,24 @@ import { MyOrder } from "../pages/user/MyOrder";
  
        
       ]    },
+      {
+        path: "/admin",
+        element: <Adminlayout/>,
+        errorElement:<ErrorPage/>,
+        children :[
+          {
+            path: "home",
+            element: <Home/>,
+        },]
+      },
+      {
+        path: "/seller",
+        element: <Sellerlayout/>,
+        errorElement:<ErrorPage/>,
+        children :[
+          {
+            path: "home",
+            element: <Home/>,
+        },]
+      },
   ]);
