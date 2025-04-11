@@ -3,7 +3,7 @@ import Header from '../components/user/Header'
 import { Outlet, useLocation } from 'react-router-dom'
 import { Footer } from '../components/user/Footer'
 import { UserHeader } from '../components/user/UserHeader'
-import { useDispatch } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import { clearUser } from '../redux/features/userSlice'
 import { axiosInstance } from '../config/axiosInstance'
 
