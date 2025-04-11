@@ -31,7 +31,12 @@ const newUser= new User({
 const saved= await newUser.save()
 if(saved){
     const token=createToken(saved._id,"user")
-    res.cookie("token",token)
+    res.cookie("token",token,
+      {
+        httpOnly: true,   // Prevents client-side JavaScript from accessing it
+        secure: true,     // Ensures cookie is only sent over HTTPS (remove in dev)
+        sameSite: "Strict" // Helps with CSRF protection
+        })
 console.log(token)
     return res.status(200).json({message:`User  ${name} Created Successfully`})
 
@@ -106,7 +111,7 @@ const profileView=async(req,res)=>{
     if (!user.active) {
       return res.status(403).json({ error: "Your account is deactivated." });
   }
-    return res.status(200).json({ user });
+    return res.status(200).json(user );
     }
     catch(err){
         console.log(err)
@@ -132,7 +137,7 @@ console.log(req.file)
             updateData.profilepic = profilePicUrl;
         }
         const updatedUser = await User.findByIdAndUpdate(userId, updateData, { new: true });
-        if (!updatedUser || !user.active) {
+        if (!updatedUser || !updatedUser.active) {
             return res.status(404).json({ error: "Your account is deactivated. You cannot update your profile." });
           }
           return res.status(200).json({ message: "Profile updated successfully", user: updatedUser });
