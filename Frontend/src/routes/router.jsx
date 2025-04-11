@@ -17,6 +17,7 @@ import { ProductDetails } from "../pages/user/ProductDetails";
 import { Cart } from "../pages/user/Cart";
 import { OrderSuccess } from "../pages/user/OrderSuccess";
 import { MyOrder } from "../pages/user/MyOrder";
+import { Profile } from "../pages/user/Profile";
 
  export const router = createBrowserRouter([
     {
@@ -44,6 +45,10 @@ import { MyOrder } from "../pages/user/MyOrder";
         path: "login",
         element: <Login/>,
     },
+    {
+      path: "profile",
+      element: <Profile/>,
+  },
     {
       path: "wishlist",
       element: <Wishlist/>,

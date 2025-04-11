@@ -61,14 +61,14 @@ export const UserHeader = () => {
         <Link to="/cart" className="btn btn-ghost">
             <ShoppingCart size={24} />
           </Link>
-          <span>{userData.user.name}</span>
+           <Link to="/profile" className="btn btn-ghost">
+             <User size={24} />
+           </Link>
 
-          <button className='btn' onClick={handleLogout}>Logout</button>
+          {/* <button className='btn' onClick={handleLogout}>Logout</button> */}
           </div> : 
-          // <Link to="/profile" className="btn btn-ghost">
-          //   <User size={24} />
-          // </Link>
-                    <Link to="/login" className="btn btn-primary">Sign In / Sign Up</Link>
+          
+                    <Link to="/login" className="btn btn-primary">Login</Link>
           
            }
           
