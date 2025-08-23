@@ -1,7 +1,8 @@
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
-  user: {},
+ user: null,
+  isUserAuth: false,
 }
 
 export const userSlice = createSlice({
@@ -11,9 +12,11 @@ export const userSlice = createSlice({
     saveUser: (state,action) => {
       
       state.user=action.payload
+      state.isUserAuth = true;
     },
     clearUser: (state) => {
       state.user={}
+      state.isUserAuth = false;
     },
     
   },

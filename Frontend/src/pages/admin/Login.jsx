@@ -5,7 +5,7 @@ import { adminLogin } from '../../services/adminServices'
 import { useDispatch } from 'react-redux';
 import { saveUser } from '../../redux/features/userSlice';
 
-export const Login = () => {
+export const AdminLogin = () => {
   const [values,setValues]=useState({
     email : '',
     password : '',

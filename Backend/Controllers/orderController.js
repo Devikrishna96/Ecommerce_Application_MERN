@@ -76,8 +76,9 @@ const viewAllOrders = async (req, res) => {
 // Get user orders
 const getUserOrders = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const orders = await Order.find({ userId }).populate('items.productId', 'name');
+    const userId = req.user;
+  
+const orders = await Order.find({ userId }).populate('products.productId', 'name price');     console.log("Orders :" ,orders)
     if (!orders.length) {
       return res.status(404).json({ error: 'No orders found' });
     }

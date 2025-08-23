@@ -73,6 +73,10 @@ import { Profile } from "../pages/user/Profile";
   path: "product/productDetails/:id",
   element: <ProductDetails/>,
 },
+{
+  path: "admin-login",
+  element: <Login/>,
+},
   //   {
     
   //     element: <ProtectedRoutes/>,
@@ -91,7 +95,8 @@ import { Profile } from "../pages/user/Profile";
           {
             path: "home",
             element: <Home/>,
-        },]
+        },
+       ]
       },
       {
         path: "/seller",

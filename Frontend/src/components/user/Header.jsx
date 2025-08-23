@@ -32,7 +32,7 @@ const Header = () => {
          {/* Sign In / Sign Up Button */}
          <div>
           <DarkMode/>
-          <Link to="/login" className="btn btn-primary">Sign In / Sign Up</Link>
+          <Link to="/login" className="btn btn-primary">Login</Link>
         </div>
 
         {/* Mobile Menu Button */}

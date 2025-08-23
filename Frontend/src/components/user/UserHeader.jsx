@@ -40,20 +40,20 @@ export const UserHeader = () => {
         </div>
 
         {/* Search Bar */}
-        {/* <div className="hidden md:flex">
+        <div className="hidden md:flex">
           <input
             type="text"
             placeholder="Search products..."
             className="input input-bordered w-60"
           />
-        </div> */}
+        </div>
 
         {/* Cart & User Icons */}
         <div className="flex gap-4">
         <DarkMode/>
         
         {userData.user && Object.keys(userData.user).length >0 ? <div className='flex items-center space-x-4'>
-                  {/* <Link className="hover:text-primary" to="/order/user-specific">My Orders</Link> */}
+                  <Link className="hover:text-primary" to="/order/user-specific">My Orders</Link>
 
           <Link to="/wishlist" className="btn btn-ghost">
               <Heart size={24} className="text-red-500" /> {/* Wishlist icon */}
@@ -65,7 +65,7 @@ export const UserHeader = () => {
              <User size={24} />
            </Link>
 
-          {/* <button className='btn' onClick={handleLogout}>Logout</button> */}
+          <button className='btn' onClick={handleLogout}>Logout</button>
           </div> : 
           
                     <Link to="/login" className="btn btn-primary">Login</Link>
@@ -76,9 +76,9 @@ export const UserHeader = () => {
         </div>
 
         {/* Mobile Menu Button */}
-        {/* <div className="md:hidden">
+        <div className="md:hidden">
           <button className="btn btn-ghost text-lg">☰</button>
-        </div> */}
+        </div>
       </div>
     </header>
     </div>

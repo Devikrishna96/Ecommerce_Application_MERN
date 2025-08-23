@@ -258,7 +258,13 @@ const updateAddress = async (req, res) => {
 //check-user
 const checkUser=async(req,res)=>{
   try {
-    res.json({message : "User Authorized"})
+    const user = await User.findById(req.user).select("-password");
+
+    return res.status(200).json({
+      message: "User Authorized",
+      user,
+    })
+
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Internal Server Error" });
