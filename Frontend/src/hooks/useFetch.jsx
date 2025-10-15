@@ -11,7 +11,7 @@ export const useFetch =(url)=>{
         try {
             const response=await axiosInstance({method :"GET",url :url});
             console.log(response)
-            setData(response?.data?.data);
+      setData(response?.data?.data || response?.data); 
             setLoading(false);
         } catch (err) {
             console.error("Fetch Error:", err);

@@ -41,3 +41,6 @@ export const userCart = (productId, quantity) => {
   export const  getUserOrders= () => {
     return axiosInstance.get("/order/user-specific");
   };
+  export const addOrder = (orderData) => {
+  return axiosInstance.post("/order/add", orderData);
+};

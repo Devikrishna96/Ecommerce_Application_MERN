@@ -25,13 +25,19 @@ const addOrder = async (req, res) => {
       });
     }
 
+    // const newOrder = new Order({
+    //   userId,
+    //   items: orderItems,
+    //   totalAmount,
+    //   paymentMethod,
+    //   shippingAddress,
+    // });
     const newOrder = new Order({
-      userId,
-      items: orderItems,
-      totalAmount,
-      paymentMethod,
-      shippingAddress,
-    });
+  userId,
+  products: orderItems,   // <-- Fix this line
+  totalPrice: totalAmount, // <-- also fix name to match model
+  paymentStatus: "success", // optional if you handle payments
+});
 
     await newOrder.save();
     res.status(201).json({ message: 'Order placed successfully', data: newOrder });
@@ -76,9 +82,12 @@ const viewAllOrders = async (req, res) => {
 // Get user orders
 const getUserOrders = async (req, res) => {
   try {
-    const userId = req.user;
+    // const userId = req.user;
+    const userId = req.user.id || req.user._id;
+
   
-const orders = await Order.find({ userId }).populate('products.productId', 'name price');     console.log("Orders :" ,orders)
+const orders = await Order.find({ userId }).populate('products.productId', 'title price');    
+ console.log("Orders :" ,orders)
     if (!orders.length) {
       return res.status(404).json({ error: 'No orders found' });
     }

@@ -22,7 +22,7 @@ export const Login = () => {
     })
     .catch(err =>{
       console.log(err);
-      toast.error(err.response.data.err,{position :'top-center'})
+      toast.error(err.response.data.error,{position :'top-center'})
     })
   }
   return (

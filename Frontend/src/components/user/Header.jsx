@@ -21,19 +21,20 @@ const Header = () => {
         </div>
 
         {/* Search Bar */}
-        <div className="hidden md:flex">
+        {/* <div className="hidden md:flex">
           <input
             type="text"
             placeholder="Search products..."
             className="input input-bordered w-60"
           />
-        </div>
+        </div> */}
 
          {/* Sign In / Sign Up Button */}
-         <div>
+         <div className="flex gap-2">
           <DarkMode/>
-          <Link to="/login" className="btn btn-primary">Login</Link>
-        </div>
+    <Link to="/login" className="btn btn-primary">Login</Link>
+    <Link to="/signup" className="btn btn-outline">Sign Up</Link>
+  </div>        
 
         {/* Mobile Menu Button */}
         <div className="md:hidden">
