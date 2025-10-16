@@ -34,7 +34,7 @@ if(saved){
     res.cookie("token",token,
       {
         httpOnly: true,   // Prevents client-side JavaScript from accessing it
-    //    secure: true,     // Ensures cookie is only sent over HTTPS (remove in dev)
+       secure: process.env.NODE_ENV,   // Ensures cookie is only sent over HTTPS (remove in dev)
         sameSite: "Strict" // Helps with CSRF protection
         })
 console.log(token)
@@ -74,7 +74,7 @@ const token=createToken(userExist._id,"user")
 res.cookie("token",token,
   {
     httpOnly: true,   // Prevents client-side JavaScript from accessing it
-  //  secure: true,     // Ensures cookie is only sent over HTTPS (remove in dev)
+    secure: process.env.NODE_ENV ,  // Ensures cookie is only sent over HTTPS (remove in dev)
     sameSite: "Strict" // Helps with CSRF protection
     })
 return res.status(200).json({message :"user login successfull",userExist})
