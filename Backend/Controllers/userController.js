@@ -35,7 +35,7 @@ if(saved){
       {
         httpOnly: true,   // Prevents client-side JavaScript from accessing it
        secure: process.env.NODE_ENV,   // Ensures cookie is only sent over HTTPS (remove in dev)
-        sameSite: "Strict" // Helps with CSRF protection
+        sameSite: "none" // Helps with CSRF protection
         })
 console.log(token)
     return res.status(200).json({message:`User  ${name} Created Successfully`})
@@ -75,7 +75,7 @@ res.cookie("token",token,
   {
     httpOnly: true,   // Prevents client-side JavaScript from accessing it
     secure: process.env.NODE_ENV ,  // Ensures cookie is only sent over HTTPS (remove in dev)
-    sameSite: "Strict" // Helps with CSRF protection
+    sameSite: "none" // Helps with CSRF protection
     })
 return res.status(200).json({message :"user login successfull",userExist})
         }
