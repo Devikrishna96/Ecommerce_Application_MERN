@@ -8,7 +8,7 @@ const reviewRouter = require('./reviewRoutes');
 const sellerRouter = require('./sellerRoutes');
 const userRouter = require('./userRoutes');
 const wishlistRouter = require('./wishlistRoutes');
-
+const stripeRouter=require('./stripeRoutes')
 const v1Router=require('express').Router();
 
 
@@ -22,7 +22,7 @@ v1Router.use('/order',orderRouter)
 v1Router.use('/wishlist',wishlistRouter)
 v1Router.use('/category',categoryRouter)
 v1Router.use('/payment',paymentRouter)
-
+v1Router.use('/stripe',stripeRouter)
 
 
 

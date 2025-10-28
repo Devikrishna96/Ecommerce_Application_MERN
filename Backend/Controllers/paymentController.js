@@ -1,4 +1,6 @@
 const Stripe=require('stripe')
+const Order = require('../Models/orderModel'); 
+
 
 const stripe=new Stripe(process.env.STRIPE_SECRET)
 const PaymentFunction=async(req,res)=>{
@@ -6,6 +8,18 @@ const PaymentFunction=async(req,res)=>{
         
         const{products}=req.body
         console.log("products",req.body)
+
+        const totalAmount = products.reduce(
+            (acc, p) => acc + p.productId.price * (p.quantity || 1),
+            0
+        );
+
+        const newOrder = await Order.create({
+            user: userId,           // user reference
+            products,               // products array
+            amount: totalAmount,    // total price
+            status: 'pending',      // initial status
+        });
 
         const lineItems=products.map((product)=>({
             price_data:{
@@ -23,8 +37,10 @@ const PaymentFunction=async(req,res)=>{
             payment_method_types:['card'],
             line_items:lineItems,
             mode:'payment',
-            success_url:`${process.env.FRONTEND_URL}/payment/success`,
+            success_url:`${process.env.FRONTEND_URL}/payment/success?orderId=${newOrder._id}`,
             cancel_url:`${process.env.FRONTEND_URL}/payment/failed`,
+            metadata: { orderId: newOrder._id.toString() }, 
+
     
         })
         return res.json({ success :true,sessionId: session.id });
