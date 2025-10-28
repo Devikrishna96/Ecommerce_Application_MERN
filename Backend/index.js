@@ -4,7 +4,8 @@ require('dotenv').config();
 const app = express()
 const mongoose= require('mongoose');
 const apiRouter = require('./Routes');
-const cookieParser=require('cookie-parser')
+const cookieParser=require('cookie-parser');
+const { stripeWebhook } = require('./Controllers/stripewebhookController');
 
 
 
@@ -34,6 +35,13 @@ app.use(cors(corsOptions))
 app.get('/', (req, res) => {
   res.send('Hello world');
 });
+
+app.post(
+  '/api/v1/stripe/webhook',
+  express.raw({ type: 'application/json' }),
+  stripeWebhook
+);
+
 app.use(express.json())
 app.use('/api',apiRouter)
 
