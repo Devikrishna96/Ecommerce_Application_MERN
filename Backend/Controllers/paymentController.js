@@ -28,7 +28,7 @@ const PaymentFunction = async (req, res) => {
       })),
       totalPrice: totalAmount, // ✅ match schema
       status: 'pending',
-      paymentStatus: 'failed',
+      paymentStatus: 'pending',
     });
 
     const lineItems = products.map((product) => ({
