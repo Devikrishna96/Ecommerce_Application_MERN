@@ -14,6 +14,8 @@ const stripeWebhook = async (req, res) => {
       sig,
       process.env.STRIPE_WEBHOOK_SECRET
     );
+        console.log('✅ Webhook event constructed successfully:', event.type);
+
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
