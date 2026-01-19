@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { clearUser, saveUser } from '../redux/features/userSlice'
 import { axiosInstance } from '../config/axiosInstance'
 
-function Userlayout() {
+function userLayout() {
   const user = useSelector((state) => state.user);
   const [isLoading, setIsLoading] = useState(true);
   console.log("user===", user);
@@ -43,4 +43,4 @@ function Userlayout() {
   )
 }
 
-export default Userlayout
+export default userLayout
