@@ -1,36 +1,45 @@
 const upload = require("../Middlewares/multer")
 const Product = require("../Models/productModel")
+const Seller = require("../Models/sellerModel")
+
 const uploadToCloudnary = require("../Utilities/imageUpload")
 
-const createProduct=async (req,res)=>{
-    try{
-        const{title,description,price,quantity}=req.body
-        if(! title || !description || !price ||!quantity)
-        {
-            return res.status(400).json({message:"All fields are required"})
-        }
-        if(! req.file)
-            {
-                return res.status(400).json({message:"Image not found"})
-            }
- const cloudnaryRes=await uploadToCloudnary(req.file.path)
-console.log(cloudnaryRes,"Image path uploaded by clodnary")
-//mentor id to be add
-const newProduct= new Product({
-    title,description,price,quantity,image:cloudnaryRes
-})
- 
-let savedProduct= await newProduct.save()
-if(savedProduct){
-    return res.status(201).json({message:"Product created successfully",data :savedProduct})
-}
-    }
-    catch(err)
-    {
-        console.log(err)
-        res.status(err.status || 400).json({error:err.message || "Internal Server Error"})
-    }
-}
+const createProduct = async (req, res) => {
+  try {
+    const { title, description, price, quantity } = req.body;
+console.log(req.body)
+console.log(req.file,"file"); // Add this
+
+    if (!title || !description || !price || !quantity)
+      return res.status(400).json({ message: "All fields are required" });
+
+    if (!req.file)
+      return res.status(400).json({ message: "Image not found" });
+
+    // 🔹 Only approved sellers can add products
+    const seller = await Seller.findById(req.seller);
+    if (!seller.verified)
+      return res.status(403).json({ error: "Your account is not verified by admin" });
+
+    const cloudinaryRes = await uploadToCloudnary(req.file.path);
+
+    const newProduct = new Product({
+      title,
+      description,
+      price,
+      quantity,
+      image: cloudinaryRes,
+      seller: req.seller, // 🔹 track product owner
+    });
+
+    const savedProduct = await newProduct.save();
+    res.status(201).json({ message: "Product created successfully", data: savedProduct });
+  } catch (err) {
+    console.log(err);
+    res.status(err.status || 500).json({ error: err.message || "Internal Server Error" });
+  }
+};
+
 
 const listProduct= async (req,res)=>{
     try {
@@ -56,52 +65,53 @@ const productDetails= async (req,res)=>{
         res.status(err.status || 400).json({error:err.message || "Internal Server Error"})
     }
 }
+const updateProduct = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const product = await Product.findById(productId);
 
-const updateProduct=async(req,res)=>{
-    try {
-        const {productId}=req.params
-        const {title,description,price,quantity}=req.body
-        if(! title && !description && !price && !quantity)
-            {
-                return res.status(400).json({message:"Atleast One field required"})
-            }
-        let imageUrl;
-        let isProductExist=await Product.findById(productId)
-        if(!isProductExist){
-            return res.status(400).json({error:"Product not found"})
-        }
-        if (!isProductExist.isApprove) {
-            return res.status(403).json({ error: "Product is not approved for updates" });
-        }
-        if(req.file){
-            const cloudnaryRes=await uploadToCloudnary(req.file.path)
-            imageUrl=cloudnaryRes
-        }
-const updatedProduct= await Product.findByIdAndUpdate(productId,{title,description,price,quantity,image:imageUrl},{new:true})
-res.status(200).json({message :"Product Updated",data : updatedProduct})
+    if (!product)
+      return res.status(404).json({ error: "Product not found" });
 
-    } catch (err) {
-        console.log(err)
-        res.status(err.status || 400).json({error:err.message || "Internal Server Error"})
+    // 🔹 Only owner can update
+    if (product.seller.toString() !== req.seller)
+      return res.status(403).json({ error: "Access Denied: Not your product" });
+
+    const { title, description, price, quantity } = req.body;
+    const updateData = { title, description, price, quantity };
+
+    if (req.file) {
+      const cloudinaryRes = await uploadToCloudnary(req.file.path);
+      updateData.image = cloudinaryRes;
     }
-}
 
-const deleteProduct=async (req,res)=>{
-    try {
-        const {productId}=req.params
-        const deleteProduct= await Product.findByIdAndDelete(productId)
-        if(!deleteProduct)
-        {
-            return res.status(400).json({error:"Product not found"})
+    const updatedProduct = await Product.findByIdAndUpdate(productId, updateData, { new: true });
+    res.status(200).json({ message: "Product updated successfully", data: updatedProduct });
+  } catch (err) {
+    console.log(err);
+    res.status(err.status || 500).json({ error: err.message || "Internal Server Error" });
+  }
+};
 
-        }
-        res.status(200).json({message:"Product Deleted"})
-    } catch (err) {
-        console.log(err)
-        res.status(err.status || 400).json({error:err.message || "Internal Server Error"})
-  
-    }
-}
+const deleteProduct = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const product = await Product.findById(productId);
+
+    if (!product)
+      return res.status(404).json({ error: "Product not found" });
+
+    // 🔹 Only owner or admin can delete
+    if (product.seller.toString() !== req.seller && req.role !== "admin")
+      return res.status(403).json({ error: "Access Denied" });
+
+    await Product.findByIdAndDelete(productId);
+    res.status(200).json({ message: "Product deleted successfully" });
+  } catch (err) {
+    console.log(err);
+    res.status(err.status || 500).json({ error: err.message || "Internal Server Error" });
+  }
+};
 
 //approve product
 const approveProduct = async (req, res) => {
@@ -119,4 +129,24 @@ const approveProduct = async (req, res) => {
 };
 
 
-module.exports={createProduct,listProduct,productDetails,updateProduct,deleteProduct,approveProduct}
+// ADMIN - list all products (approved + pending)
+const listAllProductsAdmin = async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.status(200).json({ data: products });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const listSellerProducts = async (req, res) => {
+  try {
+    const products = await Product.find({ seller: req.seller });
+    res.status(200).json({ data: products });
+  } catch (err) {
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+module.exports={createProduct,listProduct,productDetails,updateProduct,deleteProduct,approveProduct,listAllProductsAdmin,listSellerProducts}

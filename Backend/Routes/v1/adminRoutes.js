@@ -1,4 +1,9 @@
-const { register,login, logout, resetPassword, forgotPassword, profileView, checkAdmin, getDashboardStats} = require('../../Controllers/adminController')
+const { 
+    register, login, logout, resetPassword, forgotPassword, profileView, 
+    checkAdmin, getDashboardStats, 
+    getAllUsers, getAllOrders, updateOrderStatus, verifySeller ,getAllSellers
+} = require('../../Controllers/adminController');
+
 const authAdmin = require('../../Middlewares/authAdmin')
 
 const adminRouter=require('express').Router()
@@ -14,4 +19,11 @@ adminRouter.get("/checkadmin", authAdmin, checkAdmin);
 // Dashboard Stats
 adminRouter.get('/dashboard-stats', authAdmin, getDashboardStats);
 
+
+
+adminRouter.get("/all-users", authAdmin, getAllUsers);
+adminRouter.get("/all-orders", authAdmin, getAllOrders);
+adminRouter.put("/update-order-status/:id", authAdmin, updateOrderStatus);
+adminRouter.put("/verify-seller/:sellerId", authAdmin, verifySeller);
+adminRouter.get("/all-sellers", authAdmin, getAllSellers);
 module.exports= adminRouter

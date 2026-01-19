@@ -24,7 +24,7 @@ export const Footer = () => {
     <a className="link link-hover">Terms of use</a>
     <a className="link link-hover">Privacy policy</a>
    <Link to={"/seller/login"}> Are you a Seller?</Link>
-   <Link to={"/admin-login"}> Admin?</Link>
+   <Link to={"/admin/login"}> Admin?</Link>
 
   </nav>
   <form>

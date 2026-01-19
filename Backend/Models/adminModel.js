@@ -14,7 +14,7 @@ const adminSchema=new mongoose.Schema({
     password :{
         type:String,
         required:true,
-        match: [/^\+?[1-9]\d{1,14}$/, 'Please enter a valid phone number']
+        
     },
     
     role: {

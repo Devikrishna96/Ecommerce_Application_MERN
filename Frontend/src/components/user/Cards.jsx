@@ -78,7 +78,7 @@ export const Cards = ({ product }) => {
               addProducttoCart();
             }}
           >
-            Buy Now
+            Add to Cart
           </button>
         </div>
       </div>

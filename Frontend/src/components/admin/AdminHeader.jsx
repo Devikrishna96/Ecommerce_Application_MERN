@@ -1,86 +1,75 @@
-import React from 'react'
+import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Heart, ShoppingCart, User } from "lucide-react";
-import DarkMode from '../shared/DarkMode';
-import { useDispatch, useSelector } from 'react-redux';
-import { clearUser } from '../../redux/features/userSlice';
-import { persistor } from '../../redux/store';
-import { adminLogout } from '../../services/adminServices';
+import DarkMode from "../shared/DarkMode";
+import { useDispatch, useSelector } from "react-redux";
+import { adminLogout } from "../../redux/features/adminSlice";
+import { persistor } from "../../redux/store";
+import { adminLogoutService } from "../../services/adminServices";
+
 
 export const AdminHeader = () => {
-  const adminData=useSelector((state)=>state.admin)
-  const dispatch=useDispatch()
-  const navigate=useNavigate()
-  const handleLogout=()=>{
-    try {
-      adminLogout().then((res)=>{
-        persistor.purge()
-        dispatch(clearUser())
-        navigate("/home")
-      })
-    } catch (err) {
-      console.log(err)
-    }
+  const admin = useSelector((state) => state.admin);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+  try {
+    await adminLogoutService();   
+  } catch (error) {
+    console.error("Logout failed", error);
+  } finally {
+    persistor.purge();            
+    dispatch(adminLogout());      
+    navigate("/home");    
   }
+};
+
+
   return (
-    <div>
-         <header className="bg-base-100 shadow-md">
-      <div className="navbar container mx-auto px-4 py-3">
-        {/* Logo */}
-        <div className="flex-1">
-          <Link to="/" className="text-2xl font-bold text-primary">ShopEase</Link>
-        </div>
+    <header className="bg-gray-900 text-white shadow-md">
+      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
 
-        {/* Nav Links (Hidden on Small Screens) */}
-        <div className="hidden md:flex gap-6 text-lg">
-          <Link className="hover:text-primary" to="/home">Home</Link>
-          <Link className="hover:text-primary" to="/product">Products</Link>
-          <Link className="hover:text-primary" to="/about">About</Link>
-          <Link className="hover:text-primary" to="/contact">Contact</Link>
-        </div>
+        {/* LOGO */}
+        <Link to="/admin/dashboard" className="text-2xl font-bold text-blue-400">
+          Admin Panel
+        </Link>
 
-        {/* Search Bar */}
-        {/* <div className="hidden md:flex">
-          <input
-            type="text"
-            placeholder="Search products..."
-            className="input input-bordered w-60"
-          />
-        </div> */}
+        {/* NAVIGATION */}
+        <nav className="hidden md:flex gap-6 text-lg">
+          <Link to="/admin/dashboard" className="hover:text-blue-300">Dashboard</Link>
+          <Link to="/admin/users" className="hover:text-blue-300">Users</Link>
+          <Link to="/admin/products" className="hover:text-blue-300">Products</Link>
+          <Link to="/admin/orders" className="hover:text-blue-300">Orders</Link>
+          <Link to="/admin/settings" className="hover:text-blue-300">Settings</Link>
+        </nav>
 
-        {/* Cart & User Icons */}
-        <div className="flex gap-4">
-        <DarkMode/>
-        
-        {adminData.admin && Object.keys(adminData.admin).length >0 ? <div className='flex items-center space-x-4'>
-                  {/* <Link className="hover:text-primary" to="/order/admin-specific">My Orders</Link> */}
+        {/* RIGHT SIDE */}
+        <div className="flex items-center gap-4">
+          <DarkMode />
 
-          <Link to="/wishlist" className="btn btn-ghost">
-              <Heart size={24} className="text-red-500" /> {/* Wishlist icon */}
+          {admin.isAdminAuth ? (
+            <div className="flex items-center gap-3">
+              <span className="font-semibold">
+                {admin.adminInfo?.name || "Admin"}
+              </span>
+
+              <button
+                onClick={handleLogout}
+                className="btn btn-sm bg-red-500 hover:bg-red-600 text-white"
+              >
+                Logout
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/home"
+              className="btn btn-primary btn-sm"
+            >
+              Admin Login
             </Link>
-        <Link to="/cart" className="btn btn-ghost">
-            <ShoppingCart size={24} />
-          </Link>
-          <span>{adminData.admin.name}</span>
-
-          <button className='btn' onClick={handleLogout}>Logout</button>
-          </div> : 
-          // <Link to="/profile" className="btn btn-ghost">
-          //   <User size={24} />
-          // </Link>
-                    <Link to="/login" className="btn btn-primary">Sign In / Sign Up</Link>
-          
-           }
-          
-          
+          )}
         </div>
-
-        {/* Mobile Menu Button */}
-        {/* <div className="md:hidden">
-          <button className="btn btn-ghost text-lg">☰</button>
-        </div> */}
       </div>
     </header>
-    </div>
-  )
-}
+  );
+};

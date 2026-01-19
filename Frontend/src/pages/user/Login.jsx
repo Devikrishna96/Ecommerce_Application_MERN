@@ -64,8 +64,17 @@ export const Login = () => {
               </Link>
               
             </div>
+           
+
             <Link to="/signup" className="text-blue-500 hover:underline">
                 Don't have an account? Sign up
+              </Link>
+
+               <Link to="/admin-login" className="text-blue-500 hover:underline">
+                Are you an Admin? Login here
+              </Link>
+              <Link to="/seller/login" className="text-blue-500 hover:underline">
+                Are you a Seller? Login here
               </Link>
           </div>
         </div>

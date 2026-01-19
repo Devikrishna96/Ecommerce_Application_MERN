@@ -39,6 +39,11 @@ const AdminLogin = () => {
           required
         />
         <button type="submit">Login</button>
+         <p>
+        <Link to="/home" className="text-blue-500 hover:underline">
+                      Back to home 
+                    </Link>
+                    </p>
       </form>
     </div>
   );

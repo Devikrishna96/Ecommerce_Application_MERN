@@ -36,19 +36,21 @@ export const MyOrder = () => {
           {orders.map((order) => (
             <div key={order._id} className="border p-4 rounded-lg shadow-md">
               <p className="text-lg font-medium">Order ID: {order._id}</p>
-              {/* <p className="text-sm text-gray-600">Status: {order.status}</p> */}
-              <p className="text-sm text-gray-600">Total Price: ₹{order.totalAmount}</p>
-              {/* <p className="text-sm text-gray-600">Payment Status: {order.paymentStatus}</p> */}
-              <p className="text-sm text-gray-600">Payment Method: {order.paymentMethod}</p>
-              <p className="text-sm text-gray-600">Shipping Address: {order.shippingAddress}</p>
-              <p className="text-sm text-gray-600">Order Date: {new Date(order.createdAt).toLocaleDateString()}</p>
+              <p className="text-sm text-gray-600">Status: {order.status}</p>
+              <p className="text-sm text-gray-600">Payment Status: {order.paymentStatus}</p>
+              <p className="text-sm text-gray-600">Total Price: ₹{order.totalPrice}</p>
+              <p className="text-sm text-gray-600">Payment Method: {order.paymentMethod || 'N/A'}</p>
+              <p className="text-sm text-gray-600">Shipping Address: {order.shippingAddress || 'N/A'}</p>
+              <p className="text-sm text-gray-600">
+                Order Date: {new Date(order.createdAt).toLocaleDateString()}
+              </p>
               
               <h3 className="font-medium mt-3">Products:</h3>
               <ul className="mt-2 space-y-2">
-                {order.items.map((item) => (
-                  <li key={item._id} className="border p-2 rounded">
+                {order.products.map((item) => (
+                  <li key={item.productId} className="border p-2 rounded">
                     <p>
-                      <span className="font-semibold">{item.productId.name}</span> - ₹
+                      <span className="font-semibold">{item.title}</span> - ₹
                       {item.price} x {item.quantity}
                     </p>
                   </li>

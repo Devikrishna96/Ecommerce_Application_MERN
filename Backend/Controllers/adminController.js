@@ -179,11 +179,97 @@ const checkAdmin=async(req,res)=>{
 }
 
 
+const getAllUsers = async (req, res) => {
+  try {
+    const users = await User.find().select("-password -resetToken -resetTokenExpiry");
+
+    return res.status(200).json({ data: users });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const getAllSellers = async (req, res) => {
+  try {
+    const sellers = await seller.find();
+    return res.status(200).json({ data: sellers });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+const getAllOrders = async (req, res) => {
+  try {
+    const orders = await Order.find()
+      .populate("userId", "name email")
+      .populate("products.productId", "title price image");
+
+    return res.status(200).json({ data: orders });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const updateOrderStatus = async (req, res) => {
+  try {
+    const orderId = req.params.id;
+    const { status } = req.body;
+
+    if (!["pending", "completed", "cancelled"].includes(status)) {
+      return res.status(400).json({ error: "Invalid order status" });
+    }
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      { status },
+      { new: true }
+    );
+
+    if (!updatedOrder) {
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    return res.status(200).json({ message: "Order status updated", data: updatedOrder });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const verifySeller = async (req, res) => {
+  try {
+    const { sellerId } = req.params;
+
+    const sellerExist = await seller.findById(sellerId);
+    if (!sellerExist) {
+      return res.status(404).json({ error: "Seller not found" });
+    }
+
+    sellerExist.verified = true;
+    await sellerExist.save();
+
+    return res.status(200).json({ message: "Seller verified successfully", data: sellerExist });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+
+
+
+
+
+
 // Admin Dashboard - Get Stats
 const getDashboardStats = async (req, res) => {
     try {
         const totalUsers = await User.countDocuments();
-        const totalSellers = await Seller.countDocuments();
+        const totalSellers = await seller.countDocuments();
         const totalProducts = await Product.countDocuments();
         const totalOrders = await Order.countDocuments();
         const totalRevenue = await Order.aggregate([{ $group: { _id: null, revenue: { $sum: "$totalPrice" } } }]);
@@ -204,7 +290,7 @@ const getDashboardStats = async (req, res) => {
 
 
 
-module.exports={
+module.exports = {
     register,
     login,
     logout,
@@ -213,8 +299,11 @@ module.exports={
     resetPassword,
     checkAdmin,
     getDashboardStats,
-    
-    
-}
+    getAllUsers,
+    getAllOrders,
+    updateOrderStatus,
+    verifySeller,getAllSellers
+};
+
 
 

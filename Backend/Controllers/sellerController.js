@@ -1,5 +1,6 @@
 const Seller = require("../Models/sellerModel")
 const { createToken } = require("../Utilities/generateToken")
+const uploadToCloudinary = require("../Utilities/imageUpload")
 const {hashPassword,comparePassword} = require("../Utilities/passwordUtilities")
 
 const register= async(req,res)=>{
@@ -102,31 +103,56 @@ const profileView = async (req, res) => {
     }
   }
   
-  const profileEdit= async(req,res)=>{
-      try {
-          const sellerId = req.seller;        
-          const { name, phone } = req.body;
-          let updateData = { name, phone };
-          
-  console.log(req.file)
-          if (!name && !phone && !req.file) {
-              return res.status(400).json({ error: "At least one field is required to update profile" });
-            }
-               if (req.file) {
-              const profilePicUrl = await uploadToCloudinary(req.file.path,"profile_pics");
-              updateData.profilepic = profilePicUrl;
-          }
-          const updatedSeller = await Seller.findByIdAndUpdate(sellerId, updateData, { new: true });
-          if (!updatedSeller || !seller.active) {
-              return res.status(404).json({ error: "Your account is deactivated. You cannot update your profile." });
-            }
-            return res.status(200).json({ message: "Profile updated successfully", seller: updatedSeller });
-  
-      } catch (err) {
-          console.log(err)
-          return res.status(err.status || 500).json ({error:err.message || "Internal Server Error"})
-      }
+ const profileEdit = async (req, res) => {
+  try {
+    const sellerId = req.seller;
+    const { name, phone } = req.body;
+
+    if (!name && !phone && !req.file) {
+      return res.status(400).json({
+        error: "At least one field is required to update profile"
+      });
+    }
+
+    // ✅ Fetch seller first
+    const seller = await Seller.findById(sellerId);
+    if (!seller || !seller.active) {
+      return res.status(403).json({
+        error: "Your account is deactivated. You cannot update your profile."
+      });
+    }
+
+    let updateData = {};
+    if (name) updateData.name = name;
+    if (phone) updateData.phone = phone;
+
+    if (req.file) {
+      const profilePicUrl = await uploadToCloudinary(
+        req.file.path,
+        "profile_pics"
+      );
+      updateData.profilepic = profilePicUrl;
+    }
+
+    const updatedSeller = await Seller.findByIdAndUpdate(
+      sellerId,
+      updateData,
+      { new: true }
+    );
+
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      seller: updatedSeller
+    });
+
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({
+      error: err.message || "Internal Server Error"
+    });
   }
+};
+
   
   //profile deactivate
   const profileDeactivate= async(req,res)=>{

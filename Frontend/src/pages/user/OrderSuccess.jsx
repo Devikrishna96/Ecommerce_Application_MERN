@@ -1,67 +1,41 @@
 import React, { useEffect, useState } from 'react';
-import { getOrderById } from '../../services/userServices'; // create this API call
+import { getOrderById, updatePaymentStatus } from '../../services/userServices';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 
 export const OrderSuccess = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchOrder = async () => {
-      const orderId = searchParams.get('orderId'); // get orderId from URL
-      if (!orderId) {
-        setError("No orderId found in URL");
-        setLoading(false);
-        return;
-      }
+      const orderId = searchParams.get("orderId");
 
-      try {
-        const res = await getOrderById(orderId);
-        setOrder(res.data); // assume API returns { data: order }
-      } catch (err) {
-        console.error(err);
-        setError("Failed to fetch order details");
-      } finally {
-        setLoading(false);
-      }
+      const res = await getOrderById(orderId);
+      setOrder(res.data.data);
+
+      // Update payment success
+      await updatePaymentStatus({ orderId });
+
+      setLoading(false);
     };
 
     fetchOrder();
-  }, [searchParams]);
+  }, []);
 
-  if (loading) return <p>Loading order details...</p>;
-  if (error) return <p>{error}</p>;
+  if (loading) return <p>Loading...</p>;
 
   return (
     <div className="p-4">
-      <h2 className="text-2xl font-bold mb-4">Order Placed Successfully!</h2>
-      {order && (
-        <div>
-          <p>Order ID: {order._id}</p>
-          <p>Status: {order.status}</p>
-          <p>Payment Status: {order.paymentStatus}</p>
-          <p>Total Price: ₹{order.totalPrice}</p>
+      <h2 className="text-xl font-bold text-green-600">Payment Successful!</h2>
+      <p>Order ID: {order._id}</p>
+      <p>Amount Paid: ₹{order.totalPrice}</p>
+      <p>Status: {order.paymentStatus}</p>
 
-          <h3 className="font-semibold mt-4">Products:</h3>
-          <ul>
-            {order.products.map((item) => (
-              <li key={item.productId}>
-                {item.title} - Qty: {item.quantity} - Price: ₹{item.price}
-              </li>
-            ))}
-          </ul>
-
-          <button
-            className="btn btn-primary mt-4"
-            onClick={() => navigate("/product")}
-          >
-            Continue Shopping
-          </button>
-        </div>
-      )}
+      <button className="btn btn-primary mt-4" onClick={() => navigate('/')}>
+        Continue Shopping
+      </button>
     </div>
   );
 };

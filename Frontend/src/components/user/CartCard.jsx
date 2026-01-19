@@ -40,7 +40,7 @@ console.log(itemss,"item")
         <div className=" bg-grey-100 shadow-xl  flex items-center w-full justify-between py-5 text-black">
   <figure>
     <img 
-      src={item.image}
+      src={item.productId.image}
       alt="Cart Item" className='h-[100px]'/>
   </figure>
   <div className="">

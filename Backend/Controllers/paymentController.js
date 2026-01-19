@@ -1,62 +1,175 @@
-const Stripe = require('stripe');
-const Order = require('../Models/orderModel');
+// const Stripe = require('stripe');
+// const Order = require('../Models/orderModel');
+
+// const stripe = new Stripe(process.env.STRIPE_SECRET);
+
+// const PaymentFunction = async (req, res) => {
+//   try {
+//     const { products } = req.body;
+//     console.log("products", req.body);
+
+//     // ✅ FIX 1 — get userId properly from auth middleware
+//     const userId = req.user; // <-- use req.user (your auth middleware sets this)
+
+//     // ✅ FIX 2 — calculate total amount
+//     const totalAmount = products.reduce(
+//       (acc, p) => acc + p.productId.price * (p.quantity || 1),
+//       0
+//     );
+
+//     // ✅ FIX 3 — match your order schema field names
+//     const newOrder = await Order.create({
+//       userId: userId,        // ✅ changed from "user" → "userId"
+//       products: products.map(p => ({
+//         productId: p.productId._id,
+//         quantity: p.quantity || 1,
+//         price: p.productId.price,
+//         title: p.title
+//       })),
+//       totalPrice: totalAmount, // ✅ match schema
+//       status: 'pending',
+//       paymentStatus: 'pending',
+//     });
+
+//     const lineItems = products.map((product) => ({
+//       price_data: {
+//         currency: 'inr',
+//         product_data: {
+//           name: product.title,
+//           images: [product.productId.image],
+//         },
+//         unit_amount: Math.round(product.productId.price * 100),
+//       },
+//       quantity: product.quantity || 1,
+//     }));
+
+//     const session = await stripe.checkout.sessions.create({
+//       payment_method_types: ['card'],
+//       line_items: lineItems,
+//       mode: 'payment',
+//       success_url: `${process.env.FRONTEND_URL}/payment/success?orderId=${newOrder._id}`,
+//       cancel_url: `${process.env.FRONTEND_URL}/payment/failed`,
+//       metadata: { orderId: newOrder._id.toString() }, // ✅ store order ID for webhook use
+//     });
+
+//     return res.json({ success: true, sessionId: session.id });
+
+//   } catch (err) {
+//     console.log(err);
+//     res.status(err.status || 500).json({ error: err.message || "Internal server error" });
+//   }
+// };
+
+// module.exports = {
+//   PaymentFunction,
+// };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const Stripe = require("stripe");
+const Order = require("../Models/orderModel");
 
 const stripe = new Stripe(process.env.STRIPE_SECRET);
 
+// -------------------------
+// PAYMENT FUNCTION
+// -------------------------
 const PaymentFunction = async (req, res) => {
   try {
     const { products } = req.body;
-    console.log("products", req.body);
 
-    // ✅ FIX 1 — get userId properly from auth middleware
-    const userId = req.user; // <-- use req.user (your auth middleware sets this)
+    console.log("Products received:", products);
 
-    // ✅ FIX 2 — calculate total amount
+    const userId = req.user; // Auth middleware gives userId
+
+    // TOTAL AMOUNT
     const totalAmount = products.reduce(
-      (acc, p) => acc + p.productId.price * (p.quantity || 1),
+      (sum, p) => sum + p.productId.price * p.quantity,
       0
     );
 
-    // ✅ FIX 3 — match your order schema field names
-    const newOrder = await Order.create({
-      userId: userId,        // ✅ changed from "user" → "userId"
-      products: products.map(p => ({
+    // CREATE ORDER (pending)
+    const order = await Order.create({
+      userId,
+      products: products.map((p) => ({
         productId: p.productId._id,
-        quantity: p.quantity || 1,
+        quantity: p.quantity,
         price: p.productId.price,
-        title: p.title
+        title: p.title,
       })),
-      totalPrice: totalAmount, // ✅ match schema
-      status: 'pending',
-      paymentStatus: 'pending',
+      totalPrice: totalAmount,
+      status: "pending",
+      paymentStatus: "pending",
     });
 
-    const lineItems = products.map((product) => ({
+    // STRIPE LINE ITEMS
+    const lineItems = products.map((p) => ({
       price_data: {
-        currency: 'inr',
+        currency: "inr",
         product_data: {
-          name: product.title,
-          images: [product.productId.image],
+          name: p.title,
+          images: [p.productId.image],
         },
-        unit_amount: Math.round(product.productId.price * 100),
+        unit_amount: p.productId.price * 100,
       },
-      quantity: product.quantity || 1,
+      quantity: p.quantity,
     }));
 
+    // STRIPE SESSION
     const session = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
+      payment_method_types: ["card"],
       line_items: lineItems,
-      mode: 'payment',
-      success_url: `${process.env.FRONTEND_URL}/payment/success?orderId=${newOrder._id}`,
+      mode: "payment",
+      success_url: `${process.env.FRONTEND_URL}/payment/success?orderId=${order._id}`,
       cancel_url: `${process.env.FRONTEND_URL}/payment/failed`,
-      metadata: { orderId: newOrder._id.toString() }, // ✅ store order ID for webhook use
+      metadata: {
+        orderId: order._id.toString(),
+      },
     });
 
-    return res.json({ success: true, sessionId: session.id });
+    res.json({
+      success: true,
+      sessionId: session.id,
+    });
 
-  } catch (err) {
-    console.log(err);
-    res.status(err.status || 500).json({ error: err.message || "Internal server error" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Payment creation failed" });
   }
 };
 
