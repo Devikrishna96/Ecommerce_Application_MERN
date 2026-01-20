@@ -24,7 +24,7 @@ import OrdersList from "../pages/admin/OrdersList";
 import SellerVerification from "../pages/admin/SellerVerification";
 import AdminProducts from "../pages/admin/AdminProducts";
 
-import SellerSignup from "../pages/seller/SellerSignup";
+import  SellerSignup  from "../pages/seller/SellerSignup";
 import { SellerLogin } from "../pages/seller/SellerLogin";
 import { SellerHome } from "../pages/seller/SellerHome";
 import { SellerProfile } from "../pages/seller/SellerProfile";
@@ -39,7 +39,7 @@ export const router = createBrowserRouter([
   // ===== USER ROUTES =====
   {
     path: "/",
-    element: <userLayout />,
+    element: <UserLayout />,
     errorElement: <ErrorPage />,
     children: [
       { path: "/", element: <Home /> },
