@@ -32,11 +32,12 @@ const saved= await newUser.save()
 if(saved){
     const token=createToken(saved._id,"user")
     res.cookie("token",token,
-      {
-        httpOnly: true,   // Prevents client-side JavaScript from accessing it
-       secure: process.env.NODE_ENV,   // Ensures cookie is only sent over HTTPS (remove in dev)
-        sameSite: "lax" // Helps with CSRF protection
-        })
+       {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+})
 console.log(token)
     return res.status(200).json({message:`User  ${name} Created Successfully`})
 
@@ -72,11 +73,12 @@ if(!passwordMatch){
 }
 const token=createToken(userExist._id,"user")
 res.cookie("token",token,
-  {
-    httpOnly: true,   // Prevents client-side JavaScript from accessing it
-    secure: process.env.NODE_ENV ,  // Ensures cookie is only sent over HTTPS (remove in dev)
-    sameSite: "lax" // Helps with CSRF protection
-    })
+   {
+  httpOnly: true,
+  secure: process.env.NODE_ENV === "production",
+  sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+  maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+})
 return res.status(200).json({message :"user login successfull",userExist})
         }
 catch(err){
@@ -90,7 +92,11 @@ catch(err){
 
 const logout=async(req,res)=>{
     try {
-        res.clearCookie("token")
+        res.clearCookie("token",{
+  httpOnly: true,
+  secure: true,
+  sameSite: "None",
+})
         return res.status(200).json({message: "User logged out successfully"})
     } catch (err) {
         console.log(err)

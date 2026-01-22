@@ -29,8 +29,13 @@ const newseller= new Seller({
 const saved= await newseller.save()
 if(saved){
     const token=createToken(saved._id,"seller")
-    res.cookie("seller_token",token)
-console.log(token)
+    res.cookie("seller_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+console.log("token===>",token)
     return res.status(200).json({message:`seller  ${name} Created Successfully`})
 
 }
@@ -60,7 +65,12 @@ if(!passwordMatch){
     return res.status(400).json({error:"Password does not match "})
 }
 const token=createToken(sellerExist._id,"seller")
-res.cookie("seller_token",token)
+res.cookie("seller_token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    })
 return res.status(200).json({message :"seller login successfull",sellerExist})
         }
 catch(err){
@@ -72,7 +82,12 @@ catch(err){
 
 const logout=async(req,res)=>{
     try {
-        res.clearCookie("seller_token")
+
+        res.clearCookie("seller_token", {
+  httpOnly: true,
+  secure: true,
+  sameSite: "None",
+});
         return res.status(200).json({message: "seller logged out successfully"})
     } catch (err) {
         console.log(err)

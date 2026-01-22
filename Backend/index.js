@@ -68,6 +68,7 @@ const express = require('express');
 const cors = require('cors');
 require('dotenv').config();
 const app = express();
+app.set("trust proxy", 1);
 const mongoose = require('mongoose');
 const apiRouter = require('./Routes');
 const cookieParser = require('cookie-parser');

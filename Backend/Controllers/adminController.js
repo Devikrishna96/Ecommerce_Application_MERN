@@ -56,7 +56,12 @@ if(!passwordMatch){
     return res.status(400).json({error:"Password does not match "})
 }
 const token=createToken(adminExist._id,"admin")
-res.cookie("admin_token",token)
+res.cookie("admin_token",token,{
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    })
 return res.status(200).json({data : adminExist,message :"Admin login successfull"})
         }
 catch(err){
@@ -68,7 +73,11 @@ catch(err){
 
 const logout=async(req,res)=>{
     try {
-        res.clearCookie("admin_token")
+        res.clearCookie("admin_token",{
+  httpOnly: true,
+  secure: true,
+  sameSite: "None",
+})
         return res.status(200).json({message: "Admin logged out successfully"})
     } catch (err) {
         console.log(err)
