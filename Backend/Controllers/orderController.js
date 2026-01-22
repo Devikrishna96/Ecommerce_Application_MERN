@@ -369,19 +369,37 @@ const getUserOrders = async (req, res) => {
 // Called after Success Page
 // -------------------------
 const updateOrderPaymentStatus = async (req, res) => {
-  try {
+  try { // ✅ Added try block to catch errors
+    console.log("Auth middleware user:", req.user); 
+    console.log("Request body:", req.body);
     const { orderId } = req.body;
+   
 
-    await Order.findByIdAndUpdate(orderId, {
-      status: "completed",
-      paymentStatus: "success",
-    });
+    if (!orderId) { // ✅ Added check for missing orderId
+      return res.status(400).json({ error: "Order ID is required" });
+    }
 
-    res.json({ success: true });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const order = await Order.findById(orderId); // fetch order from DB
+
+    if (!order) { // ✅ Added check if order exists
+      return res.status(404).json({ error: "Order not found" });
+    }
+
+    // ✅ Update payment status safely
+    order.paymentStatus = "success";
+    order.status = "completed";
+
+    await order.save();
+
+    // ✅ Return updated order
+    return res.status(200).json({ success: true, order });
+
+  } catch (err) { // ✅ Catch any errors
+    console.error("Update payment status error:", err); // ✅ Log error
+    return res.status(500).json({ error: "Failed to update payment status" }); // ✅ Safe response to frontend
   }
 };
+
 
 
 module.exports = {

@@ -8,21 +8,27 @@ export const OrderSuccess = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchOrder = async () => {
-      const orderId = searchParams.get("orderId");
+ useEffect(() => {
+  const fetchOrder = async () => {
+    const orderId = searchParams.get("orderId");
+    if (!orderId) return;
 
+    try {
       const res = await getOrderById(orderId);
       setOrder(res.data.data);
 
       // Update payment success
-      await updatePaymentStatus({ orderId });
+      await updatePaymentStatus({ orderId }); 
+    } catch (err) {
+      console.error("Order fetch/update failed:", err);
+      alert("Something went wrong. Please check your orders page.");
+    } finally {
+      setLoading(false); // ✅ ensures loader disappears even on error
+    }
+  };
 
-      setLoading(false);
-    };
-
-    fetchOrder();
-  }, []);
+  fetchOrder();
+}, []);
 
   if (loading) return <p>Loading...</p>;
 
