@@ -31,8 +31,8 @@ if(saved){
     const token=createToken(saved._id,"seller")
     res.cookie("seller_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      secure:  true ,
+       sameSite : "None" ,
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 console.log("token===>",token)
@@ -67,8 +67,8 @@ if(!passwordMatch){
 const token=createToken(sellerExist._id,"seller")
 res.cookie("seller_token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax",
+      secure:  true ,
+      sameSite : "None" ,
       maxAge: 7 * 24 * 60 * 60 * 1000
     })
 return res.status(200).json({message :"seller login successfull",sellerExist})
